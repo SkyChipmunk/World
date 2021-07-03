@@ -1,9 +1,12 @@
 package org.cubit.world.listener
 
+import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.metadata.FixedMetadataValue
 import org.cubit.world.World
@@ -21,7 +24,7 @@ class WorldListener : Listener {
             val player = entity as Player
             if (player.hasMetadata("Cancel")) player.cancelIf<PlayerCancel> {
                 player.health += player.getHp()
-                player.setMetadata("Cancel" , FixedMetadataValue(World.inst , PlayerHpRecovery))
+                player.setMetadata("Cancel", FixedMetadataValue(World.inst, PlayerHpRecovery))
                 player.sendMessage("§a공격 회피!")
                 player.updateTime()
                 isCancelled = true
@@ -30,9 +33,6 @@ class WorldListener : Listener {
             player.cancelIf<PlayerHpRecovery> {
                 player.setHp(player.maxHealth - player.health)
             }
-
-
-
         }
     }
 
@@ -40,5 +40,21 @@ class WorldListener : Listener {
     fun PlayerJoinEvent.onPlayerJoinEvent() {
         player.updateTime()
     }
+
+    @EventHandler
+    fun EntityExplodeEvent.onEntityExplodeEvent() {
+        isCancelled = true
+        for (block in blockList()) {
+            block.location(Material.STONE)
+        }
+    }
+
+    operator fun Location.invoke(material: Material){
+        this.block.type = material
+    }
+
+
+
+
 }
 
