@@ -1,0 +1,5 @@
+name: World
+version: unspecified
+main: org.cubit.world.World
+api-version: 1.13
+description: Plugin file generated with Wolfradle
