@@ -7,14 +7,10 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityExplodeEvent
-import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.metadata.FixedMetadataValue
-import org.cubit.world.World
-import org.cubit.world.data.PlayerCancel
-import org.cubit.world.data.PlayerHpRecovery
-import org.cubit.world.data.PlayerHpRecovery.getHp
-import org.cubit.world.util.WorldTime.updateTime
-import org.cubit.world.util.WorldUtil.cancelIf
+import org.cubit.world.data.PlayerDamageImmuned
+import org.cubit.world.util.ImmuneUtil.adjustRecovery
+import org.cubit.world.util.ImmuneUtil.check
+import org.cubit.world.util.ImmuneUtil.isImmune
 
 class WorldListener : Listener {
 
@@ -22,24 +18,13 @@ class WorldListener : Listener {
     fun EntityDamageByEntityEvent.onEntityDamageByEntity() {
         if (entity is Player) {
             val player = entity as Player
-            if (player.hasMetadata("Cancel")) player.cancelIf<PlayerCancel> {
-                player.health += player.getHp()
-                player.setMetadata("Cancel", FixedMetadataValue(World.inst, PlayerHpRecovery))
-                player.sendMessage("§a공격 회피!")
-                player.updateTime()
-                isCancelled = true
-                return
-            }
-            player.cancelIf<PlayerHpRecovery> {
-                player.setHp(player.maxHealth - player.health)
+            player.check<PlayerDamageImmuned> {
+                player.adjustRecovery(damage.toInt())
+                damage = 0.0
             }
         }
     }
 
-    @EventHandler
-    fun PlayerJoinEvent.onPlayerJoinEvent() {
-        player.updateTime()
-    }
 
     @EventHandler
     fun EntityExplodeEvent.onEntityExplodeEvent() {
@@ -49,11 +34,9 @@ class WorldListener : Listener {
         }
     }
 
-    operator fun Location.invoke(material: Material){
+    operator fun Location.invoke(material: Material) {
         this.block.type = material
     }
-
-
 
 
 }
