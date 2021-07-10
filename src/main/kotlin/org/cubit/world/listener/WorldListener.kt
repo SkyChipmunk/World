@@ -10,7 +10,6 @@ import org.bukkit.event.entity.EntityExplodeEvent
 import org.cubit.world.data.PlayerDamageImmuned
 import org.cubit.world.util.ImmuneUtil.adjustRecovery
 import org.cubit.world.util.ImmuneUtil.check
-import org.cubit.world.util.ImmuneUtil.isImmune
 
 class WorldListener : Listener {
 
